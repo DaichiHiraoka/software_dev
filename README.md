@@ -8,3 +8,6 @@
 #### バックエンド<br>
 1.`cd backend`<br>
 2.`node server2.js`<br>
+
+### .ebvファイルについて
+codespaceの3001番URLをfrontend/.envに書く
