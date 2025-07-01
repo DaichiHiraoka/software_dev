@@ -2,7 +2,7 @@
 
 ### アプリケーション起動について
 #### フロントエンド<br>
-1.`cd frondend/src`<br>
+1.`cd frontend/src`<br>
 2.`npm start`<br>
 
 #### バックエンド<br>
