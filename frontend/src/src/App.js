@@ -84,7 +84,7 @@ function App() {
         price: Number(newItem.price),
       }),
     });
-
+    console.log(`データのpost: ${currentID}`);
     //入力フォーム初期化。
     setNewItem({ id: '', name: '', price: '' }); // 入力フォームを空に戻す
  

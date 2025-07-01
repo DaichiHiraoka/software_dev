@@ -28,8 +28,10 @@ app.get('/api/TestTable', (req, res) => {
   db.all('SELECT * FROM TestTable', (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
+      console.error('データ取得エラー:', err.message);
     } else {
       res.json(rows);
+      console.error('データ取得OK:');
     }
   });
 });
@@ -52,6 +54,7 @@ app.post('/api/TestTable', (req, res) => {
 
         db.run('COMMIT');
         res.json({ id: this.lastID, name, price });
+        console.log(`新規データ追加: ID=${id}, Name=${name}, Price=${price}`);
       }
     );
   });
