@@ -1,0 +1,233 @@
+通信販売システム  ソフトウェア詳細設計書
+SWSS-001
+承認作成
+佐藤鈴⽊
+2025/7/8 2025/7/8
+2025年 7⽉ 8⽇  IPUT-OK 情報⼯学科
+通信販売システム  ソフトウェア詳細設計書
+改訂履歴
+⽇付バージョン改訂内容担当
+2025/7/8 Ver.0.1初版作成鈴⽊
+通信販売システム  ソフトウェア詳細設計書
+⽬次
+1. 概要
+2. プログラムユニット機能と構成設計  2.1 プログラムユニット⼀覧表  2.2 プログラムユニッ
+ト構成図
+3. プログラムユニット設計  3.1 プログラムユニット詳細処理  3.2 プログラムユニット状態遷
+移 3.3 リソース定義  3.4 システム初期化処理  3.5 共通定義
+4. プログラムユニット・インタフェース設計  4.1 プログラムユニット間のインタフェース
+4.2 インタフェース詳細
+通信販売システム  ソフトウェア詳細設計書
+1. 概要
+本書の⽬的  本書は、通信販売システムのプログラムレベルの仕様 ( 詳細な振る舞いや論理
+構造など )を記述する。
+本書の位置づけ  本書は、通信販売システムの 3 号開発ドキュメントであり、後続のソース
+コーディングのインプット資料として使われる。
+対象ユーザ  ソフトウェアの実装担当者 ( プログラマ ) 、ソフトウェア単体テスト設計者。
+記載範囲、記載内容など  通信販売システムの実装すべき全てのプログラムを明確にし、コ
+ーディング可能なレベルに記述する。
+参照しているドキュメントなど  「通信販売システム  ソフトウェア⽅式設計書」
+定義(⽤語、略語など )
+通信販売システム  ソフトウェア詳細設計書
+2. プログラムユニット機能と構成設計
+2.1 プログラムユニット⼀覧表
+機能カ
+テゴリプログラム名 機能概要
+注⽂管
+理機能check_stock 注⽂内容に基づき、該当商品の在庫を確認する。
+register_order購⼊者情報、⽀払い⽅法を含めた注⽂内容をシス
+テムに⼊⼒し、注⽂番号と注⽂⽇を⾃動⽣成して
+登録する。
+manage_payment⽀払い⽅法（銀⾏振込、コンビニ決済、代⾦引
+換）に応じた処理を⾏う。
+select_product 商品リストから希望する商品と数量を選択する。
+input_customer_info ⽒名、住所、連絡先を⼊⼒する。
+process_paymentクレジットカード情報を⼊⼒し、決済を完了す
+る。
+confirm_order⼊⼒された情報に基づき注⽂を確定し、注⽂デー
+タを⽣成する。
+商品管
+理機能update_stock_quantity注⽂の発送状態が「発送済」となった際に、在庫
+数量を⾃動的に更新する。
+query_stock_quantity 在庫数量（実在庫と有効在庫）を照会する。
+search_product 商品番号または商品名で商品を検索する。
+機能カ
+テゴリプログラム名 機能概要
+顧客管
+理機能manage_customer_info購⼊者情報（⽒名、住所、連絡先など）を登録、
+更新、照会する。
+会計管
+理機能confirm_payment_status注⽂情報を検索し、⼊⾦確認後に⽀払い状態を
+「⽀払済」に更新する。
+発送管
+理機能view_unshipped_orders 未発送の注⽂データを閲覧する。
+create_invoice 納品書や請求書を作成する。
+pick_products 倉庫から商品をピッキングする。
+update_shipping_status発送後、注⽂の発送状態を「発送済」に変更す
+る。
+データ
+管理機
+能manage_order_data 注⽂データの登録、更新、検索、削除を⾏う。
+manage_product_stock_data 商品在庫データの登録、更新、検索を⾏う。
+2.2 プログラムユニット構成図
+classDiagram  
+    class Customer {  
+        -customerID  
+        -name  
+        -address  
+        -contactInfo  
+        +register()  
+        +updateInfo()  
+        +search()  
+    } 
+    class Order {  
+        -orderID  
+        -orderDate  
+        -customerID  
+        -paymentMethod  
+        -shippingStatus  
+        +createOrder()  
+        +updateStatus()  
+        +deleteOrder()  
+    } 
+    class Product {  
+        -productID  
+        -productName  
+        -price  
+        -stockQuantity1  
+        -stockQuantity2  
+        +updateStock()  
+        +queryStock()  
+        +searchProduct()  
+    } 
+    class OrderManagement {  
+        +receiveOrder()  
+        +registerOrder()  
+        +confirmOrder()  
+    } 
+    class ProductManagement {  
+        +manageStock()  
+        +searchProduct()  
+    } 
+    class CustomerManagement {  
+        +manageCustomerInfo()  
+    } 
+    class AccountingManagement {  
+        +confirmPayment()  
+    } 
+    class ShippingManagement {  
+        +processShipment()  
+        +createDocuments()  
+        +updateShippingStatus()  
+    } 
+ 
+    Customer "1" -- "*" Order  
+    Order "1" -- "*" Product  
+    OrderManagement -- Order  
+    ProductManagement -- Product  
+    CustomerManagement -- Customer  
+    AccountingManagement -- Order  
+    ShippingManagement -- Order  
+通信販売システム  ソフトウェア詳細設計書
+3. プログラムユニット設計
+3.1 プログラムユニット詳細処理
+プログラム名 引数 戻り値処理内容制
+約
+事
+項
+プログラム名 引数 戻り値処理内容制
+約
+事
+項
+register_order注⽂情報（購⼊者
+情報、商品、⽀払
+い⽅法）注⽂結果
+(0:成功 ,
+1:失敗 )注⽂内容をシステムに登
+録し、注⽂番号を発⾏す
+る。
+update_stock_quantity 商品番号 , 数量更新結果
+(0:成功 ,
+1:失敗 )発送済商品の在庫数量を
+更新する。
+search_product商品番号  or 商品
+名商品情報
+リスト条件に⼀致する商品を検
+索し、在庫情報と共に返
+す。
+confirm_payment_status 注⽂番号更新結果
+(0:成功 ,
+1:失敗 )⼊⾦を確認し、注⽂の⽀
+払い状態を「⽀払済」に
+更新する。
+update_shipping_status 注⽂番号更新結果
+(0:成功 ,
+1:失敗 )商品発送後、発送状態を
+「発送済」に更新する。
+3.2 プログラムユニット状態遷移
+注⽂管理状態遷移図
+stateDiagram-v2  
+    [*] --> 注⽂受付 
+    注⽂受付  --> 在庫確認 
+    在庫確認  --> ⽀払い処理  : 在庫あり 
+    在庫確認  --> [*] : 在庫なし 
+    ⽀払い処理  --> 発送処理  : ⽀払い完了  
+    ⽀払い処理  --> 注⽂キャンセル  : ⽀払い失敗  
+    発送処理  --> 在庫更新 
+    在庫更新  --> 完了 
+    完了  --> [*]  
+3.3 リソース定義
+リソー
+ス名⽤途構造 値とその意味
+リソー
+ス名⽤途構造 値とその意味
+顧客マ
+スタ顧客情報を管
+理する顧客ID, ⽒名 , 住所 , 連絡先
+商品マ
+スタ商品情報を管
+理する商品番号 , 商品名 , 単価
+在庫テ
+ーブル商品の在庫を
+管理する商品番号 , 在庫数量 1, 在庫数量 2在庫数量 1: 実在庫 , 在庫
+数量2: 有効在庫
+注⽂デ
+ータ注⽂情報を管
+理する注⽂番号 , 注⽂⽇ , 顧客 ID, ⽀払い⽅法 ,
+⽀払い状態 , 発送状態
+通信販売システム  ソフトウェア詳細設計書
+3.4 システム初期化処理
+データベースサーバとの接続を確⽴する。
+各マスタデータ、テーブルへのアクセス準備を⾏う。
+Webサーバの初期設定を読み込み、リクエスト待機状態にする。
+3.5 共通定義
+エラーコードリスト : E001 =DB接続エラー , E002 =在庫不⾜ , E003 =決済失敗
+状態コード : payment_status  (0:未払い , 1:⽀払済 ), shipping_status  (0:未発送 , 1:発送準
+備中, 2:発送済 )
+通信販売システム  ソフトウェア詳細設計書
+4. プログラムユニット・インタフェース設計
+4.1 プログラムユニット間のインタフェース
+各機能管理ユニット内部のプログラムユニット間は、直接 call 。
+Webクライアントとサーバ間は、 HTTP/HT TPS プロトコルを⽤いた API でやり取りを⾏う。
+4.2 インタフェース詳細
+インターフェー
+ス呼び出し⽅法 結果データフォーマット
+インターフェー
+ス呼び出し⽅法 結果データフォーマット
+ネット注⽂受付
+(confirm_order)POST
+/api/orders注⽂結
+果
+(JSON)Request Body (JSON):  { customerInfo:
+{...}, items: [...], payment: {...}
+}
+Response Body (JSON):  { orderId:
+"...", status: "success" }
+商品検索
+(search_product)GET
+/api/products?
+q=...商品リ
+スト
+(JSON)Response Body (JSON):  [ { productId:
+"...", name: "...", price: ...,
+stock: ... } ]

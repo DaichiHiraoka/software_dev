@@ -1,8 +1,23 @@
 {
+  "name": "inshokuten-backend",
+  "version": "1.0.0",
+  "description": "通信販売システム バックエンドAPI",
+  "main": "server2.js",
+  "scripts": {
+    "start": "node server2.js",
+    "dev": "nodemon server2.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "multer": "^2.0.1",
     "sqlite3": "^5.1.7"
-  }
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["ecommerce", "api", "node.js", "express"],
+  "author": "開発チーム",
+  "license": "MIT"
 }

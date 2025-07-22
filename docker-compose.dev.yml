@@ -1,0 +1,23 @@
+# Development specific docker-compose override
+version: '3.8'
+
+services:
+  backend:
+    build:
+      target: development
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/public/images:/app/public/images
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+    command: ["npm", "run", "dev"]
+
+  frontend:
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - FAST_REFRESH=true
+    volumes:
+      - ./frontend/src:/app
+      - /app/node_modules
