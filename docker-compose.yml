@@ -1,87 +1,151 @@
 version: '3.8'
 
 services:
-  # Backend Service (Node.js API Server)
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: inshokuten_backend
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-      - ./backend/public/images:/app/public/images
-    environment:
-      - NODE_ENV=development
-      - PORT=3001
-    networks:
-      - inshokuten_network
-    restart: unless-stopped
-    depends_on:
-      - db_init
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Frontend Service (React Development Server)
-  frontend:
-    build:
-      context: ./frontend/src
-      dockerfile: Dockerfile
-    container_name: inshokuten_frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend/src:/app
-      - /app/node_modules
-    environment:
-      - REACT_APP_API_URL=http://localhost:3001
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-    networks:
-      - inshokuten_network
-    restart: unless-stopped
-    depends_on:
-      - backend
-    stdin_open: true
-    tty: true
-
   # Database Initialization Service
   db_init:
     build:
       context: ./backend
       dockerfile: Dockerfile.db
-    container_name: inshokuten_db_init
+    container_name: ecommerce_db_init
     volumes:
       - ./backend:/app
       - db_data:/app/data
+      - ./Inshokuten.sqlite3:/app/Inshokuten.sqlite3
     networks:
-      - inshokuten_network
+      - ecommerce_network
     command: ["node", "-e", "console.log('Database initialized')"]
+    restart: "no"
 
-  # Database Volume Management
+  # Backend API Service  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecommerce_backend
+    ports:
+      - "3005:3005"
+    depends_on:
+      - db_init
+    volumes:
+      - ./backend/public:/app/public
+      - ./Inshokuten.sqlite3:/app/Inshokuten.sqlite3
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Customer Frontend (Port 3000)
+  frontend:
+    build:
+      context: ./frontend/src
+      dockerfile: Dockerfile
+    container_name: ecommerce_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3005
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+  # Order Management System (Port 3001)
+  order-management:
+    build:
+      context: ./order-management
+      dockerfile: Dockerfile
+    container_name: ecommerce_order_management
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3005
+      - NODE_ENV=production
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Accounting Management System (Port 3002)
+  accounting-management:
+    build:
+      context: ./accounting-management
+      dockerfile: Dockerfile
+    container_name: ecommerce_accounting_management
+    ports:
+      - "3002:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3005
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+  # Shipping Management System (Port 3003)
+  shipping-management:
+    build:
+      context: ./shipping-management
+      dockerfile: Dockerfile
+    container_name: ecommerce_shipping_management
+    ports:
+      - "3003:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3005
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+  # Admin Management System (Port 3004)
+  admin-management:
+    build:
+      context: ./admin-management
+      dockerfile: Dockerfile
+    container_name: ecommerce_admin_management
+    ports:
+      - "3004:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3005
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+  # Database Backup Service
   db_backup:
     image: alpine:latest
-    container_name: inshokuten_db_backup
+    container_name: ecommerce_db_backup
     volumes:
       - db_data:/data
       - ./backups:/backups
     command: ["sh", "-c", "while true; do sleep 3600; done"]
     networks:
-      - inshokuten_network
+      - ecommerce_network
 
 volumes:
   db_data:
     driver: local
-  node_modules_backend:
-    driver: local
-  node_modules_frontend:
+  backend_node_modules:
     driver: local
 
 networks:
-  inshokuten_network:
+  ecommerce_network:
     driver: bridge

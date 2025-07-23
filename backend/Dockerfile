@@ -26,8 +26,8 @@ RUN adduser -S backend -u 1001
 RUN chown -R backend:nodejs /app
 USER backend
 
-# ポート3001を公開
-EXPOSE 3001
+# ポート3005を公開
+EXPOSE 3005
 
 # ヘルスチェック用のcurlをインストール（alpineの場合）
 USER root

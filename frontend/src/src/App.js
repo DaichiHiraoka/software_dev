@@ -1,595 +1,420 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Button } from "./components/ui/button"
+import { Input } from "./components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
+import { Badge } from "./components/ui/badge"
+import { Separator } from "./components/ui/separator"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./components/ui/dialog"
+import { Label } from "./components/ui/label"
+import { Textarea } from "./components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
+import { ShoppingCart, Search, Plus, Minus, Trash2 } from "lucide-react"
 
 // 環境変数または直接指定
-const server_url = process.env.REACT_APP_API_URL || 'http://localhost:3001'
+const server_url = process.env.REACT_APP_API_URL || 'http://localhost:3005'
 
 console.log('環境変数 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 console.log('使用するサーバーURL:', server_url);
 
-// 確実に設定するため、直接指定も可能
-// const server_url = 'http://localhost:3001';
-
 function App() {
-  // 一覧表示用のデータを保存する変数（サーバーから取得してここに入れる）
-  const [data, setData] = useState([]); // 空の状態を代入。
+  // State management (customer-focused)
 
-  // フォームで新しいデータを入力するための変数（ID、名前、価格を保持）
-  const [newItem, setNewItem] = useState({ id: '', name: '', price: '' });
-  
-  // 一覧の各行ごとの「編集中の内容」を一時的に保存するための変数
-  // IDごとに name と price を持つようなオブジェクトで管理する。
-  const [editedItems, setEditedItems] = useState({});
+  // Product and search functionality
+  const [searchQuery, setSearchQuery] = useState("")
+  const [allProducts, setAllProducts] = useState([])
+  const [searchResults, setSearchResults] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // アップロード用画像ファイル
-  const [imageFile, setImageFile] = useState(null);
-  const fileInputRef = useRef(null);
-
-  // New state for search
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
-  // 注文フロー用の状態
-  const [cart, setCart] = useState([]);
-  const [showOrderForm, setShowOrderForm] = useState(false);
+  // Cart and order management
+  const [cart, setCart] = useState([])
+  const [showOrderForm, setShowOrderForm] = useState(false)
   const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    address: '',
-    contactInfo: ''
-  });
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+    name: "",
+    address: "",
+    contactInfo: "",
+  })
+  const [paymentMethod, setPaymentMethod] = useState("bank_transfer")
 
-  // データ取得
+  // Load all products on component mount
   useEffect(() => {
-    fetchData();
-  }, []);
+    loadAllProducts()
+  }, [])
 
-  const fetchData = () => {
-    fetch(`${server_url}/api/TestTable`)
-      .then(res => res.json()) // サーバーの応答(JSON形式)をJavaScriptオブジェクトに変換
-      .then(data => {
-        setData(data); // 取得したデータを React の状態（state）に保存 → 画面に表示されるようになる
-        const initialEdits = {}; // 編集用フォームに使う初期値を保存するための空オブジェクトを用意
-        data.forEach(item => {   // 取得したデータの1件1件について繰り返し処理（itemは1行分のデータ）
-          initialEdits[item.ID] = { // 各行のIDをキーにして、編集フォームで使う初期値をセットする
-            name: item.Name || '',  // Nameがnullであれば''
-            price: item.Price != null ? String(item.Price) : '' // 数値情報を文字列に変換し表示。(0も表示できる)
-          };
-        });
-        setEditedItems(initialEdits);
-      });
-  };
-
-  // 新規入力フォーム更新
-  const handleNewChange = (e) => { //e：イベント
-    const { name, value } = e.target; // イベントにより編集された情報を変数に代入
-    setNewItem(prev => ({ 
-      ...prev,      // 現在の状態(id, name, price)をすべてコピーする。
-      [name]: value // // 編集されたinput の name 属性に対応する値を上書き。
-    }));
-  };
-
-  // 編集フォーム更新（行ごと）
-  const handleEditChange = (id, e) => {
-    const { name, value } = e.target;
-    setEditedItems(prev => ({ // フォームで1文字入力されるたびに呼ばれる
-      ...prev, // その行に入力された値をコピー
-      [id]: { // 今回編集された行(id)だけ更新
-        ...prev[id],  // その行にすでに入力されていた値をコピー
-        [name]: value // 編集されたinput の name 属性に対応する値を上書き。
-      },
-    }));
-  };
-
-  const handleImageUpload = async (id) => {
-    if (!imageFile) return;
-    const formData = new FormData();
-    formData.append('image', imageFile);
-    formData.append('id', id);
-
-    await fetch(`${server_url}/api/upload`, {
-      method: 'POST',
-      body: formData
-    });
-  };
-
-  // 新規追加（POST）
-  const handleAdd = async () => {
-    const currentID = newItem.id;
-
-    await fetch(`${server_url}/api/TestTable`, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ // JavaScript のオブジェクトをJSON文字列に変換
-        id: Number(newItem.id),
-        name: newItem.name,
-        price: Number(newItem.price),
-      }),
-    });
-    console.log(`データのpost: ${currentID}`);
-    //入力フォーム初期化。
-    setNewItem({ id: '', name: '', price: '' }); // 入力フォームを空に戻す
- 
-    await handleImageUpload(currentID);
-    
-    await fetchData(); // 登録が完了したら、最新データをもう一度サーバから取得
-
-    setImageFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = null; // 🔹 ファイル選択状態をクリア
+  // Load all products
+  const loadAllProducts = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`${server_url}/api/products`)
+      const data = await response.json()
+      setAllProducts(data)
+      setSearchResults(data) // Initially show all products
+    } catch (error) {
+      console.error("Failed to load products:", error)
+      setAllProducts([])
+      setSearchResults([])
+      alert("商品データの読み込み中にエラーが発生しました。サーバーへの接続を確認してください。")
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
-  // 更新（PUT）
-  const handleUpdate = (id) => {
-    fetch(`${server_url}/api/TestTable/${id}`, {
-      method: 'PUT', // PUT： データ更新
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ // JavaScript のオブジェクトをJSON文字列に変換
-        name: editedItems[id].name,
-        price: Number(editedItems[id].price),
-      }),
-    }).then(() => fetchData());
-  };
+  // Search functionality (filter products)
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults(allProducts) // Show all products if search is empty
+      return
+    }
 
-  // 削除（DELETE）
-  const handleDelete = (id) => {
-    fetch(`${server_url}/api/TestTable/${id}`, {
-      method: 'DELETE',
-    }).then(() => 
-      fetchData() // 更新が完了したら、最新データをもう一度サーバから取得
-    );
-  };
+    const filtered = allProducts.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setSearchResults(filtered)
+  }, [searchQuery, allProducts])
 
-  // New function for handling search
   const handleSearch = () => {
-    console.log('検索開始:', searchQuery);
-    console.log('サーバーURL:', server_url);
-    
-    if (!searchQuery) {
-      setSearchResults([]); // Clear results if query is empty
-      return;
-    }
-    
-    const searchUrl = `${server_url}/api/products?q=${searchQuery}`;
-    console.log('検索URL:', searchUrl);
-    
-    fetch(searchUrl)
-      .then(res => {
-        console.log('レスポンス状態:', res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log('検索結果:', data);
-        setSearchResults(data);
-      })
-      .catch(err => {
-        console.error("Search failed:", err);
-        alert('検索エラー: ' + err.message);
-      });
-  };
+    // This function is now mainly for the search button, but filtering happens automatically
+  }
 
-  // カート管理機能
+  // Cart management
   const addToCart = (product, quantity = 1) => {
-    const existingItem = cart.find(item => item.productID === product.productId);
+    const productId = product.productId || product.ID
+    const productName = product.name || product.Name
+    const productPrice = product.price || product.Price
+
+    if (!productId || !productName || !productPrice) return
+
+    const existingItem = cart.find((item) => item.productID === productId)
     if (existingItem) {
-      setCart(cart.map(item => 
-        item.productID === product.productId 
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      ));
+      setCart(
+        cart.map((item) => (item.productID === productId ? { ...item, quantity: item.quantity + quantity } : item)),
+      )
     } else {
-      setCart([...cart, {
-        productID: product.productId,
-        name: product.name,
-        price: product.price,
-        quantity: quantity
-      }]);
+      setCart([
+        ...cart,
+        {
+          productID: productId,
+          name: productName,
+          price: productPrice,
+          quantity: quantity,
+        },
+      ])
     }
-  };
+  }
 
   const removeFromCart = (productID) => {
-    setCart(cart.filter(item => item.productID !== productID));
-  };
+    setCart(cart.filter((item) => item.productID !== productID))
+  }
 
   const updateCartQuantity = (productID, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(productID);
-      return;
+      removeFromCart(productID)
+      return
     }
-    setCart(cart.map(item => 
-      item.productID === productID 
-        ? { ...item, quantity: quantity }
-        : item
-    ));
-  };
+    setCart(cart.map((item) => (item.productID === productID ? { ...item, quantity: quantity } : item)))
+  }
 
-  // 注文処理
+  // Order processing
   const handleOrder = async () => {
     if (cart.length === 0) {
-      alert('カートが空です');
-      return;
+      alert("カートが空です")
+      return
     }
 
     if (!customerInfo.name || !customerInfo.address || !customerInfo.contactInfo) {
-      alert('顧客情報をすべて入力してください');
-      return;
+      alert("顧客情報をすべて入力してください")
+      return
     }
 
     const orderData = {
       customerInfo: customerInfo,
-      items: cart.map(item => ({
+      items: cart.map((item) => ({
         productID: item.productID,
-        quantity: item.quantity
+        quantity: item.quantity,
       })),
       payment: {
-        method: paymentMethod
-      }
-    };
+        method: paymentMethod,
+      },
+    }
 
     try {
       const response = await fetch(`${server_url}/api/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      })
 
-      const result = await response.json();
-      
+      const result = await response.json()
+
       if (response.ok) {
-        alert(`注文が完了しました！注文番号: ${result.orderId}`);
-        setCart([]);
-        setShowOrderForm(false);
-        setCustomerInfo({ name: '', address: '', contactInfo: '' });
+        alert(`注文が完了しました！注文番号: ${result.orderId}`)
+        setCart([])
+        setShowOrderForm(false)
+        setCustomerInfo({ name: "", address: "", contactInfo: "" })
       } else {
-        alert(`注文エラー: ${result.error}`);
+        alert(`注文エラー: ${result.error}`)
       }
     } catch (error) {
-      alert('注文処理中にエラーが発生しました');
-      console.error('Order error:', error);
+      alert("注文処理中にエラーが発生しました")
+      console.error("Order error:", error)
     }
-  };
+  }
 
-  const handleCustomerInfoChange = (e) => {
-    const { name, value } = e.target;
-    setCustomerInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
 
-  // データ移行処理
-  const migrateData = async () => {
-    try {
-      const response = await fetch(`${server_url}/api/migrate-data`, {
-        method: 'GET'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
-      alert(`${result.message} (${result.migrated || 0}件)`);
-    } catch (error) {
-      console.error('詳細エラー:', error);
-      alert('データ移行エラー: ' + error.message);
-    }
-  };
+  const totalCartValue = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
 
-  // 商品直接追加機能
-  const [newProduct, setNewProduct] = useState({ id: '', name: '', price: '', stock: '' });
-
-  const handleNewProductChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct(prev => ({ ...prev, [name]: value }));
-  };
-
-  const addProduct = async () => {
-    if (!newProduct.id || !newProduct.name || !newProduct.price) {
-      alert('ID、商品名、価格は必須です');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${server_url}/api/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: parseInt(newProduct.id),
-          name: newProduct.name,
-          price: parseFloat(newProduct.price),
-          stock: parseInt(newProduct.stock) || 100
-        })
-      });
-
-      const result = await response.json();
-      
-      if (response.ok) {
-        alert('商品追加成功！');
-        setNewProduct({ id: '', name: '', price: '', stock: '' });
-      } else {
-        alert(`商品追加エラー: ${result.error}`);
-      }
-    } catch (error) {
-      alert('商品追加エラー: ' + error.message);
-    }
-  };
-
-return (
-    <div style={{ padding: '20px' }}>
-      <h1>通信販売システム</h1>
-      
-      {/* カート表示 */}
-      {cart.length > 0 && (
-        <div style={{ background: '#f0f0f0', padding: '10px', marginBottom: '20px' }}>
-          <h3>ショッピングカート ({cart.length}件)</h3>
-          {cart.map(item => (
-            <div key={item.productID} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-              <span>{item.name} - ¥{item.price} x </span>
-              <input 
-                type="number" 
-                value={item.quantity} 
-                onChange={(e) => updateCartQuantity(item.productID, parseInt(e.target.value))}
-                style={{ width: '50px', margin: '0 5px' }}
-                min="1"
-              />
-              <span>= ¥{item.price * item.quantity}</span>
-              <button onClick={() => removeFromCart(item.productID)} style={{ marginLeft: '10px' }}>削除</button>
-            </div>
-          ))}
-          <hr />
-          <strong>合計: ¥{cart.reduce((total, item) => total + (item.price * item.quantity), 0)}</strong>
-          <br />
-          <button onClick={() => setShowOrderForm(true)} style={{ marginTop: '10px' }}>注文に進む</button>
-        </div>
-      )}
-
-      <h2>商品検索・注文</h2>
-      
-      {/* 商品直接追加フォーム */}
-      <div style={{ background: '#f5f5f5', padding: '15px', marginBottom: '15px', border: '1px solid #ddd' }}>
-        <h3>新商品追加</h3>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <input
-            name="id"
-            placeholder="商品ID"
-            value={newProduct.id}
-            onChange={handleNewProductChange}
-            style={{ width: '80px' }}
-          />
-          <input
-            name="name"
-            placeholder="商品名"
-            value={newProduct.name}
-            onChange={handleNewProductChange}
-            style={{ width: '150px' }}
-          />
-          <input
-            name="price"
-            placeholder="価格"
-            value={newProduct.price}
-            onChange={handleNewProductChange}
-            style={{ width: '100px' }}
-          />
-          <input
-            name="stock"
-            placeholder="在庫数(省略可)"
-            value={newProduct.stock}
-            onChange={handleNewProductChange}
-            style={{ width: '120px' }}
-          />
-          <button onClick={addProduct} style={{ background: 'green', color: 'white', padding: '5px 15px' }}>
-            商品追加
-          </button>
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <button onClick={migrateData} style={{ background: 'orange', marginRight: '10px' }}>
-          TestTableデータを商品DBに移行
-        </button>
-        <span style={{ fontSize: '12px', color: '#666' }}>
-          ※初回のみ実行してください
-        </span>
-      </div>
-      <input
-        type="text"
-        placeholder="商品名で検索"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-      <button onClick={handleSearch}>検索</button>
-      <table border="1" style={{ marginTop: '10px' }}>
-        <thead>
-          <tr>
-            <th>商品ID</th>
-            <th>商品名</th>
-            <th>価格</th>
-            <th>在庫</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {searchResults.length > 0 ? (
-            searchResults.map((item, index) => {
-              console.log(`商品${index}:`, item);
-              return (
-                <tr key={item.productId || index}>
-                  <td>{item.productId}</td>
-                  <td>{item.name}</td>
-                  <td>¥{item.price}</td>
-                  <td>{item.stock}</td>
-                  <td>
-                    <button 
-                      onClick={() => addToCart(item)}
-                      disabled={item.stock <= 0}
-                    >
-                      {item.stock > 0 ? 'カートに追加' : '在庫なし'}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td colSpan="5">
-                {searchQuery ? `"${searchQuery}" の検索結果が見つかりません` : '商品を検索してください'}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {/* 注文フォーム */}
-      {showOrderForm && (
-        <div style={{ 
-          position: 'fixed', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)',
-          background: 'white', 
-          border: '2px solid #333', 
-          padding: '20px',
-          zIndex: 1000,
-          maxWidth: '500px',
-          width: '90%'
-        }}>
-          <h3>注文情報入力</h3>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header with Cart Button */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-light text-gray-900 tracking-wide">PREMIUM STORE</h1>
+            <p className="text-sm text-gray-600">Curated Collection & Seamless Experience</p>
+          </div>
           
-          <h4>お客様情報</h4>
-          <div style={{ marginBottom: '10px' }}>
-            <label>お名前:</label><br />
-            <input 
-              type="text" 
-              name="name"
-              value={customerInfo.name}
-              onChange={handleCustomerInfoChange}
-              style={{ width: '100%', padding: '5px' }}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>住所:</label><br />
-            <textarea 
-              name="address"
-              value={customerInfo.address}
-              onChange={handleCustomerInfoChange}
-              style={{ width: '100%', padding: '5px', height: '60px' }}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>連絡先:</label><br />
-            <input 
-              type="text" 
-              name="contactInfo"
-              value={customerInfo.contactInfo}
-              onChange={handleCustomerInfoChange}
-              style={{ width: '100%', padding: '5px' }}
-            />
-          </div>
-
-          <h4>支払い方法</h4>
-          <select 
-            value={paymentMethod} 
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            style={{ width: '100%', padding: '5px', marginBottom: '10px' }}
-          >
-            <option value="bank_transfer">銀行振込</option>
-            <option value="convenience_store">コンビニ決済</option>
-            <option value="cash_on_delivery">代金引換</option>
-            <option value="credit_card">クレジットカード</option>
-          </select>
-
-          <h4>注文内容確認</h4>
-          {cart.map(item => (
-            <div key={item.productID} style={{ marginBottom: '5px' }}>
-              {item.name} x {item.quantity} = ¥{item.price * item.quantity}
-            </div>
-          ))}
-          <hr />
-          <strong>合計金額: ¥{cart.reduce((total, item) => total + (item.price * item.quantity), 0)}</strong>
-
-          <div style={{ marginTop: '20px' }}>
-            <button onClick={handleOrder} style={{ marginRight: '10px' }}>注文確定</button>
-            <button onClick={() => setShowOrderForm(false)}>キャンセル</button>
-          </div>
+          {/* Cart Button */}
+          <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+            <DialogTrigger asChild>
+              <Button 
+                className="relative bg-gray-900 hover:bg-gray-800 text-white p-3 rounded-full"
+                size="lg"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {totalCartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium">
+                    {totalCartItems > 99 ? '99+' : totalCartItems}
+                  </span>
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl bg-white border-gray-300 max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-gray-900 text-xl font-light flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  ショッピングカート ({totalCartItems}点)
+                </DialogTitle>
+              </DialogHeader>
+              
+              {cart.length === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingCart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600">カートに商品がありません</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Cart Items */}
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {cart.map((item) => (
+                      <div
+                        key={item.productID}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{item.name}</div>
+                          <div className="text-sm text-gray-600 font-mono">¥{item.price.toLocaleString()}</div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 hover:bg-gray-100 bg-transparent h-8 w-8 p-0"
+                            onClick={() => updateCartQuantity(item.productID, item.quantity - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="font-mono text-sm font-medium w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 hover:bg-gray-100 bg-transparent h-8 w-8 p-0"
+                            onClick={() => updateCartQuantity(item.productID, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-400 hover:bg-red-50 text-red-600 bg-transparent h-8 w-8 p-0"
+                            onClick={() => removeFromCart(item.productID)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Separator className="bg-gray-300" />
+                  
+                  {/* Total */}
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-xl font-light text-gray-900">合計金額</span>
+                    <span className="text-2xl font-mono font-medium text-gray-900">
+                      ¥{totalCartValue.toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <Separator className="bg-gray-300" />
+                  
+                  {/* Customer Information Form */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900">お客様情報</h3>
+                    <div className="grid gap-4">
+                      <div>
+                        <Label htmlFor="name" className="text-gray-700 font-medium">
+                          お名前 *
+                        </Label>
+                        <Input
+                          id="name"
+                          className="border-gray-300 focus:border-gray-500"
+                          placeholder="山田 太郎"
+                          value={customerInfo.name}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="address" className="text-gray-700 font-medium">
+                          お届け先住所 *
+                        </Label>
+                        <Textarea
+                          id="address"
+                          className="border-gray-300 focus:border-gray-500"
+                          placeholder="〒000-0000 東京都○○区○○ 1-1-1 ○○マンション101"
+                          value={customerInfo.address}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="contact" className="text-gray-700 font-medium">
+                          連絡先 *
+                        </Label>
+                        <Input
+                          id="contact"
+                          className="border-gray-300 focus:border-gray-500"
+                          placeholder="メールアドレスまたは電話番号"
+                          value={customerInfo.contactInfo}
+                          onChange={(e) => setCustomerInfo({ ...customerInfo, contactInfo: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="payment" className="text-gray-700 font-medium">
+                          お支払い方法 *
+                        </Label>
+                        <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                          <SelectTrigger className="border-gray-300 focus:border-gray-500">
+                            <SelectValue placeholder="お支払い方法を選択" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="bank_transfer">銀行振込</SelectItem>
+                            <SelectItem value="convenience_store">コンビニ決済</SelectItem>
+                            <SelectItem value="cash_on_delivery">代金引換</SelectItem>
+                            <SelectItem value="credit_card">クレジットカード</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowOrderForm(false)}
+                      className="border-gray-300"
+                    >
+                      キャンセル
+                    </Button>
+                    <Button 
+                      onClick={handleOrder} 
+                      className="bg-gray-900 hover:bg-gray-800"
+                      disabled={!customerInfo.name || !customerInfo.address || !customerInfo.contactInfo}
+                    >
+                      注文を確定する
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
-      )}
+      </div>
 
-      <hr style={{ margin: '20px 0' }} />
+      <div className="container mx-auto p-6 space-y-8">
+        {/* Product Catalog */}
+        <Card className="bg-white border-gray-300 shadow-lg max-w-4xl mx-auto">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
+            <CardTitle className="flex items-center gap-3 text-gray-900 font-light text-xl">
+              <Search className="h-5 w-5" />
+              商品カタログ
+            </CardTitle>
+            <div className="text-sm text-gray-600 mt-2">
+              {loading ? "商品を読み込み中..." : `${allProducts.length}点の商品を表示中`}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 p-6">
+            <div className="flex gap-3">
+              <Input
+                placeholder="商品名で絞り込み検索..."
+                className="border-gray-300 focus:border-gray-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button onClick={() => setSearchQuery("")} variant="outline" className="border-gray-300">
+                クリア
+              </Button>
+            </div>
 
-      <h2>商品リスト</h2>
-      <table border="1">
-        <thead>
-          <tr>
-            <th>ID</th><th>画像</th><th>Name</th><th>Price</th><th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(item => (
-            <tr key={item.ID}>
-              <td>{item.ID}</td>
-              <td>
-                <img
-                  src={`${server_url}/images/${item.ID}.jpg?${Date.now()}`}
-                  alt={`${item.Name}の画像`}
-                  style={{ width: '60px', height: '60px', objectFit: 'cover', display: 'block',border: '1px solid #ccc' }}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = `${server_url}/images/placeholder.jpg`;
-                  }}
-                />
-              </td>
-              <td>
-                <input
-                  name="name"
-                  value={editedItems[item.ID]?.name ?? ''}
-                  onChange={(e) => handleEditChange(item.ID, e)}
-                />
-              </td>
-              <td>
-                <input
-                  name="price"
-                  value={editedItems[item.ID]?.price ?? ''}
-                  onChange={(e) => handleEditChange(item.ID, e)}
-                />
-              </td>
-              <td>
-                <button onClick={() => handleUpdate(item.ID)}>更新</button>
-                <button onClick={() => handleDelete(item.ID)}>削除</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            {searchQuery && (
+              <div className="text-sm text-gray-600">
+                「{searchQuery}」で絞り込み中 - {searchResults.length}件の商品が見つかりました
+              </div>
+            )}
 
-      <h3>新しいデータを追加</h3>
-      <input
-        name="id"
-        placeholder="ID"
-        value={newItem.id}
-        onChange={handleNewChange}
-      />
-      <input
-        name="name"
-        placeholder="名前"
-        value={newItem.name}
-        onChange={handleNewChange}
-      />
-      <input
-        name="price"
-        placeholder="価格"
-        value={newItem.price}
-        onChange={handleNewChange}
-      />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setImageFile(e.target.files[0])}
-        ref={fileInputRef} 
-      />
-      <button onClick={handleAdd}>追加</button>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">商品を読み込み中...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((item, index) => (
+                  <div
+                    key={item.productId || index}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div>
+                      <div className="font-medium text-gray-900 text-lg">{item.name}</div>
+                      <div className="text-sm text-gray-500 font-mono">
+                        ¥{item.price?.toLocaleString()} | Stock: {item.stock} available
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => addToCart(item)}
+                      disabled={!item.stock || item.stock <= 0}
+                      size="sm"
+                      className="bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300"
+                    >
+                      {item.stock && item.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-12 font-light">
+                  {searchQuery ? 
+                    `「${searchQuery}」に一致する商品が見つかりませんでした。別のキーワードをお試しください。` : 
+                    "商品データベースに商品が登録されていません。管理者にお問い合わせください。"
+                  }
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }
 
 export default App;
