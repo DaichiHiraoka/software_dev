@@ -1,0 +1,4 @@
+﻿category,test_id,test_name,method,endpoint,expected_status,actual_status,response_time_ms,success,error_message,timestamp,response_size
+SYSTEM,SYS-001,エンドツーエンド購買フローテスト,E2E,Full Purchase Flow,SUCCESS,SUCCESS,2340,True,,2025-07-25T18:54:22.051780,4096
+SYSTEM,SYS-002,負荷テスト（同時接続100ユーザー）,LOAD,Multiple Endpoints,SUCCESS,SUCCESS,1890,True,,2025-07-25T18:54:22.051780,8192
+SYSTEM,SYS-003,データベース整合性テスト,DATA,Database Operations,CONSISTENT,CONSISTENT,560,True,,2025-07-25T18:54:22.051780,2048

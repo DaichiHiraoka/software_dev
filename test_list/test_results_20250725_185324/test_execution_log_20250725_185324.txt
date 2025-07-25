@@ -1,0 +1,332 @@
+# 完全自動テスト実行ログ
+# 実行開始時刻: 2025-07-25 18:53:24
+# ログファイル: test_results_20250725_185324\test_execution_log_20250725_185324.txt
+================================================================================
+================================================================================
+🧪 完全自動テスト実行システム
+================================================================================
+📅 開始時刻: 2025-07-25 18:53:24
+
+📋 テスト実行計画:
+   1. 単体テスト (成功基準: 90%以上)
+   2. 結合テスト (成功基準: 85%以上)
+   3. 総合テスト (成功基準: 80%以上)
+================================================================================
+
+🔧 環境準備中...
+[OK] Python依存関係確認済み
+
+[STEP 1] 単体テスト実行中...
+------------------------------------------------------------
+[UNIT TEST] === UNIT TEST AUTOMATION ===
+Start Time: 2025-07-25 18:53:31
+[SERVER] Checking for existing backend server...
+[OK] Backend server is already running
+
+[TESTS] Running Unit Tests...
+Total Tests: 24
+================================================================================
+[PASS] UT-API-001: iAPI (190ms)
+[PASS] UT-API-002: iAPI(󕶎) (360ms)
+[PASS] UT-API-003: iAPI(݂Ȃi) (439ms)
+[PASS] UT-API-004: TestTableS擾 (436ms)
+[FAIL] UT-API-005: TestTableVK쐬 (326ms)
+[PASS] UT-API-006: TestTableXV (335ms)
+[PASS] UT-API-007: TestTable폜 (334ms)
+[PASS] UT-API-008: ꗗ擾 (336ms)
+[PASS] UT-API-009: ꗗ擾(tB^) (339ms)
+[PASS] UT-API-010: VK쐬 (590ms)
+[PASS] UT-API-011: Xe[^XXV (344ms)
+[PASS] UT-API-012: xꗗ擾 (341ms)
+[PASS] UT-API-013: xXe[^XXV (455ms)
+[PASS] UT-API-014: ꗗ擾 (350ms)
+[PASS] UT-API-015: Xe[^XXV (488ms)
+[PASS] UT-API-016: v擾 (543ms)
+[PASS] UT-API-018: wX`FbN (172ms)
+[PASS] UT-API-019: ݂ȂGh|Cg (177ms)
+[PASS] UT-API-020: sȃ\bh (169ms)
+[PASS] UT-DB-001: f[^x[XڑmF (445ms)
+[PASS] UT-DB-002: Products}mF (491ms)
+[PASS] UT-DB-003: f[^mF (487ms)
+[PASS] UT-DB-004: f[^XVmF (486ms)
+[PASS] UT-DB-005: f[^폜mF (529ms)
+
+================================================================================
+[RESULTS] Unit Test Results by Category
+================================================================================
+API Tests:  19 | Passed:  18 | Failed:   1 | Rate:  94.7%
+ DB Tests:   5 | Passed:   5 | Failed:   0 | Rate: 100.0%
+--------------------------------------------------------------------------------
+Total:      24 | Passed:  23 | Failed:   1 | Rate:  95.8%
+
+[SAVE] Results saved to: test_results_20250725_185324\unit_test_results_20250725_185331.csv
+
+[COMPLETED] UNIT TEST COMPLETED
+================================================================================
+[RESULTS] Final Results:
+   Total Tests: 24
+   Passed: 23
+   Failed: 1
+   Success Rate: 95.8%
+   Execution Time: 0.60s
+   Report File: test_results_20250725_185324\unit_test_results_20250725_185331.csv
+
+[SUCCESS] UNIT TESTS PASSED! (>=90% success rate)
+
+[PASS] 単体テスト 合格 (1.5秒)
+
+================================================================================
+[PROGRESS] テスト進捗サマリー
+================================================================================
+      単体テスト: [PASS] 合格 (1.5秒)
+
+⏳ 残り 2 テスト区分...
+================================================================================
+
+[STEP 2] 結合テスト実行中...
+------------------------------------------------------------
+[INTEGRATION] === INTEGRATION TEST AUTOMATION ===
+Start Time: 2025-07-25 18:53:32
+[SERVER] Checking for existing backend server...
+[OK] Backend server is already running
+
+[TESTS] Running Integration Tests...
+Total Test Scenarios: 7
+================================================================================
+
+[TEST] IT-AD-001: iAPI-DBAg
+  [EXEC] Executing multi-step: iAPI-DBAg
+    [OK] Step 1: f[^ (28ms)
+    [OK] Step 2: s (21ms)
+    [OK] Step 3: f[^폜 (67ms)
+
+[TEST] IT-AD-002: TestTable CRUDAgt[
+  [EXEC] Executing multi-step: TestTable CRUDAgt[
+    [OK] Step 1: 쐬 (35ms)
+    [OK] Step 2: mF (24ms)
+    [OK] Step 3: XV (38ms)
+    [OK] Step 4: 폜 (36ms)
+    [OK] Step 5: 폜mF (11ms)
+
+[TEST] IT-FE-001: iꗗ擾Ag
+  [EXEC] Executing multi-step: iꗗ擾Ag
+    [OK] Step 1: eXgf[^ (48ms)
+    [OK] Step 2: iꗗ擾 (19ms)
+    [OK] Step 3: TestTableꗗ擾 (18ms)
+    [OK] Step 4: N[Abv (44ms)
+
+[TEST] IT-OM-001: 쐬XVt[
+  [EXEC] Executing multi-step: 쐬XVt[
+    [OK] Step 1: 쐬 (34ms)
+    [OK] Step 2: ꗗmF (14ms)
+    [OK] Step 3: Xe[^XXV (42ms)
+    [OK] Step 4: xXe[^XXV (21ms)
+    [OK] Step 5: Xe[^XXV (33ms)
+
+[TEST] IT-ER-001: G[nhOAg
+  [EXEC] Executing multi-step: G[nhOAg
+    [OK] Step 1: ݂Ȃ\[X擾 (8ms)
+    [FAIL] Step 2: sf[^POST - Expected 400, got 500
+    [FAIL] Step 3: ݂Ȃ\[XXV - Expected 404, got 200
+    [FAIL] Step 4: ݂Ȃ\[X폜 - Expected 404, got 200
+
+[TEST] IT-CC-001: sNGXg
+  [EXEC] Executing concurrent: sNGXg
+    [OK] Request 1: i1 (17ms)
+    [OK] Request 2: i2 (41ms)
+    [OK] Request 3: TestTable擾 (24ms)
+    [OK] Request 4: ꗗ擾 (45ms)
+    [OK] Request 5: wX`FbN (49ms)
+
+[TEST] IT-PF-001: X|Xԑ
+  [EXEC] Executing performance: X|Xԑ
+    [OK] API: 48ms (limit: 1000ms)
+    [OK] i: 24ms (limit: 2000ms)
+    [OK] wX`FbN: 14ms (limit: 500ms)
+
+================================================================================
+[RESULTS] Integration Test Results by Category
+================================================================================
+      API-DB:  2 | Passed:  2 | Failed:  0 | Rate: 100.0%
+       FE-BE:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+       ORDER:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+       ERROR:  1 | Passed:  0 | Failed:  1 | Rate:   0.0%
+  CONCURRENT:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+ PERFORMANCE:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+--------------------------------------------------------------------------------
+       Total:  7 | Passed:  6 | Failed:  1 | Rate:  85.7%
+
+[SAVE] Results saved to: integration_test_results_20250725_185333.csv
+
+[COMPLETED] INTEGRATION TEST COMPLETED
+================================================================================
+[SUMMARY] Final Results:
+   Total Scenarios: 7
+   Passed: 6
+   Failed: 1
+   Success Rate: 85.7%
+   Execution Time: 0.76s
+   Report File: integration_test_results_20250725_185333.csv
+
+[SUCCESS] INTEGRATION TESTS PASSED! (>=85% success rate)
+
+[PASS] 結合テスト 合格 (1.7秒)
+
+================================================================================
+[PROGRESS] テスト進捗サマリー
+================================================================================
+      単体テスト: [PASS] 合格 (1.5秒)
+      結合テスト: [PASS] 合格 (1.7秒)
+
+⏳ 残り 1 テスト区分...
+================================================================================
+
+[STEP 3] 総合テスト実行中...
+------------------------------------------------------------
+[SYSTEM] === SYSTEM TEST AUTOMATION ===
+Start Time: 2025-07-25 18:53:34
+[SERVER] Checking for existing backend server...
+[OK] Backend server is already running
+
+[TESTS] Running System Tests...
+Total Test Scenarios: 6
+================================================================================
+
+[TEST] ST-E2E-001: S[Nt[
+    ڋq甭܂ł̑SH
+  [EXEC] Executing workflow: S[Nt[
+    [OK] Step 1 (Customer): i (10ms)
+    [OK] Step 2 (Customer): 쐬 (40ms)
+    [OK] Step 3 (OrderMgmt): mF (14ms)
+    [OK] Step 4 (OrderMgmt): F (46ms)
+    [OK] Step 5 (Accounting): xmF (18ms)
+    [OK] Step 6 (Accounting): x (33ms)
+    [OK] Step 7 (Shipping):  (34ms)
+    [OK] Step 8 (Shipping): s (82ms)
+    [OK] Step 9 (Admin): vmF (26ms)
+
+[TEST] ST-DC-001: VXeff[^
+    SVXeԂł̃f[^mF
+  [EXEC] Executing consistency: VXeff[^
+    [OK] TestTableѐ (/api/TestTable): Data consistent
+    [OK] f[^ѐ (/api/orders): Data consistent
+    [OK] xf[^ѐ (/api/payments): Data consistent
+    [OK] f[^ѐ (/api/shipments): Data consistent
+
+[TEST] ST-PF-001: ׃ViIeXg
+    ANZXEʃf[^eXg
+  [EXEC] Executing load test: ׃ViIeXg
+    [OK] ڑeXg: 2301/2301 requests succeeded (100.0%)
+    [OK] ʃf[^: 531/531 requests succeeded (100.0%)
+    [OK] API\: 100/100 requests succeeded (100.0%)
+
+[TEST] ST-FT-001: QϐeXg
+    G[󋵂ł̓mF
+  [EXEC] Executing fault tolerance: QϐeXg
+    [FAIL] sNGXg: Expected 400, got 500
+    [OK] ݂Ȃ\[X: Expected behavior confirmed
+    [OK] \bhsv: Expected behavior confirmed
+    [OK] ^CAEg͋[: Expected behavior confirmed
+
+[TEST] ST-SC-001: ZLeB
+    {IȃZLeBvmF
+  [EXEC] Executing security: ZLeB
+    [OK] SQLCWFNV΍: Security requirement met
+    [OK] XSS΍: Security requirement met
+    [FAIL] sContent-Type: Expected 400, got 500
+    [OK] CORSwb_[mF: Security requirement met
+
+[TEST] ST-UX-001: API[UreB
+    APIg₷EX|Xi
+  [EXEC] Executing usability: API[UreB
+    [FAIL] G[bZ[Wi: Error response is not JSON format
+    [OK] X|X`: Usability requirement met
+    [OK] wX`FbN: Usability requirement met
+
+================================================================================
+[RESULTS] System Test Results by Category
+================================================================================
+      E2E_WORKFLOW:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+  DATA_CONSISTENCY:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+       PERFORMANCE:  1 | Passed:  1 | Failed:  0 | Rate: 100.0%
+   FAULT_TOLERANCE:  1 | Passed:  0 | Failed:  1 | Rate:   0.0%
+          SECURITY:  1 | Passed:  0 | Failed:  1 | Rate:   0.0%
+         USABILITY:  1 | Passed:  0 | Failed:  1 | Rate:   0.0%
+--------------------------------------------------------------------------------
+             Total:  6 | Passed:  3 | Failed:  3 | Rate:  50.0%
+
+[SAVE] Results saved to: system_test_results_20250725_185421.csv
+
+[COMPLETED] SYSTEM TEST COMPLETED
+================================================================================
+[SUMMARY] Final Results:
+   Total Scenarios: 6
+   Passed: 3
+   Failed: 3
+   Success Rate: 50.0%
+   Execution Time: 47.24s
+   Report File: system_test_results_20250725_185421.csv
+
+[WARNING] SYSTEM TESTS NEED ATTENTION (<80% success rate)
+
+[FAIL] 総合テスト 不合格 (48.4秒)
+
+================================================================================
+[PROGRESS] テスト進捗サマリー
+================================================================================
+      単体テスト: [PASS] 合格 (1.5秒)
+      結合テスト: [PASS] 合格 (1.7秒)
+      総合テスト: [FAIL] 不合格 (48.4秒)
+================================================================================
+
+================================================================================
+[FINAL] 全テスト完了 - 最終結果
+================================================================================
+[SUMMARY] 全体サマリー:
+   テスト区分数: 3
+   合格: 2
+   不合格: 1
+   成功率: 66.7%
+   総実行時間: 57.3秒
+
+📋 各テスト区分の詳細:
+   [OK]    単体テスト: 合格 (基準: 90%以上) - 1.5秒
+   [OK]    結合テスト: 合格 (基準: 85%以上) - 1.7秒
+   [NG]    総合テスト: 不合格 (基準: 80%以上) - 48.4秒
+
+--------------------------------------------------------------------------------
+[WARNING] 一部テストが不合格です
+
+🔧 推奨アクション:
+   • 総合テスト: システム全体の最適化が必要
+
+[RETRY] 修正後、再度実行してください:
+   python run_all_tests.py
+================================================================================
+
+[REPORTS] 追加レポート生成:
+   📄 test_results_20250725_185324\integration_test_results_20250725_185324.csv
+   📄 test_results_20250725_185324\system_test_results_20250725_185324.csv
+
+📂 生成されたテストレポート:
+   📁 出力ディレクトリ: test_results_20250725_185324
+
+   📋 生成されたCSVファイル:
+   📄 integration_test_results_20250725_185324.csv (624 bytes)
+   📄 system_test_results_20250725_185324.csv (577 bytes)
+   📄 unit_test_results_20250725_185331.csv (2787 bytes)
+
+   📝 実行ログファイル:
+   📄 test_execution_log_20250725_185324.txt (12331 bytes)
+
+💡 レポート確認方法:
+   • ディレクトリ移動: cd test_results_20250725_185324
+   • CSV閲覧: Excel/LibreOfficeで開く
+   • ログ確認: type test_execution_log_20250725_185324.txt
+   • コマンド確認: type test_results_20250725_185324\*.csv
+
+================================================================================
+# 実行終了時刻: 2025-07-25 18:54:22
+# 総実行時間: 57.3秒
+# ログファイル保存先: test_results_20250725_185324\test_execution_log_20250725_185324.txt
+================================================================================

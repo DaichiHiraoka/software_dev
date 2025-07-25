@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { Badge } from "./components/ui/badge"
 import { Label } from "./components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./components/ui/table"
-import { Settings, Database, Package, Edit, Trash2, Upload, Plus, BarChart3 } from "lucide-react"
+import { Settings, Database, Package, Edit, Trash2, Upload, Plus, BarChart3, AlertTriangle } from "lucide-react"
+import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "./components/ui/modal"
 
 // 環境変数または直接指定
 const server_url = process.env.REACT_APP_API_URL || 'http://localhost:3005'
@@ -30,6 +31,11 @@ function AdminApp() {
     totalRevenue: 0,
     activeUsers: 0
   })
+
+  // System Reset Modal
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+  const [systemCounts, setSystemCounts] = useState({})
+  const [isResetting, setIsResetting] = useState(false)
 
   // Data fetching
   useEffect(() => {
@@ -206,6 +212,48 @@ function AdminApp() {
     }
   }
 
+  // System Reset Functions
+  const fetchSystemCounts = async () => {
+    try {
+      const response = await fetch(`${server_url}/api/system/count`)
+      if (response.ok) {
+        const data = await response.json()
+        setSystemCounts(data.counts)
+      }
+    } catch (error) {
+      console.error("システムカウント取得エラー:", error)
+    }
+  }
+
+  const handleResetSystemData = async () => {
+    setIsResetting(true)
+    try {
+      const response = await fetch(`${server_url}/api/system/reset`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert("システムデータが正常にリセットされました")
+        setIsResetModalOpen(false)
+        fetchStats() // 統計を更新
+      } else {
+        const error = await response.json()
+        alert(`リセットエラー: ${error.error}`)
+      }
+    } catch (error) {
+      console.error("システムリセットエラー:", error)
+      alert("システムリセットエラー: " + error.message)
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const openResetModal = async () => {
+    await fetchSystemCounts()
+    setIsResetModalOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto p-6 space-y-8">
@@ -332,6 +380,14 @@ function AdminApp() {
                 className="w-full border-gray-300 hover:bg-gray-50"
               >
                 Refresh Data
+              </Button>
+              <Button
+                onClick={openResetModal}
+                variant="outline"
+                className="w-full border-red-300 hover:bg-red-50 text-red-700"
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Reset System Data
               </Button>
               <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
                 <p className="font-medium mb-1">System Information:</p>
@@ -478,6 +534,100 @@ function AdminApp() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* System Reset Modal */}
+        <Modal isOpen={isResetModalOpen} onClose={() => setIsResetModalOpen(false)}>
+          <ModalHeader>
+            <ModalTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-6 w-6" />
+              システムデータリセット
+            </ModalTitle>
+          </ModalHeader>
+          
+          <ModalContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 font-medium mb-2">⚠️ 警告</p>
+                <p className="text-red-700 text-sm">
+                  この操作により、以下のシステムデータが<strong>完全に削除</strong>されます。
+                  この操作は<strong>取り消しできません</strong>。
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-900">削除対象データ:</h4>
+                <div className="bg-gray-50 p-3 rounded border text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>📋 注文情報:</span>
+                      <span className="font-mono">{systemCounts.orders || 0}件</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>📦 注文詳細:</span>
+                      <span className="font-mono">{systemCounts.orderItems || 0}件</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>👥 顧客情報:</span>
+                      <span className="font-mono">{systemCounts.customers || 0}件</span>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200">
+                      <div className="flex justify-between">
+                        <span>💳 支払いステータス付き:</span>
+                        <span className="font-mono">{systemCounts.payments || 0}件</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>🚚 配送ステータス付き:</span>
+                        <span className="font-mono">{systemCounts.shipments || 0}件</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-gray-300">
+                    <div className="font-medium">主要データ合計: <span className="font-mono">{(systemCounts.orders || 0) + (systemCounts.orderItems || 0) + (systemCounts.customers || 0)}</span>件が削除されます</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+                <p className="text-blue-800">
+                  <strong>データ構造:</strong> 支払い・配送情報は注文テーブル内のステータスフィールドで管理されています。
+                </p>
+              </div>
+
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                <p className="text-yellow-800">
+                  <strong>保持されるデータ:</strong> 商品情報(Products/TestTable)および在庫情報は削除されません。
+                </p>
+              </div>
+            </div>
+          </ModalContent>
+          
+          <ModalFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsResetModalOpen(false)}
+              disabled={isResetting}
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={handleResetSystemData}
+              disabled={isResetting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isResetting ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  実行中...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  実行する
+                </span>
+              )}
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     </div>
   )

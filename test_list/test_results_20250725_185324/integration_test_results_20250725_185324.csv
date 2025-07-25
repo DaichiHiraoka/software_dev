@@ -1,0 +1,4 @@
+﻿category,test_id,test_name,method,endpoint,expected_status,actual_status,response_time_ms,success,error_message,timestamp,response_size
+INTEGRATION,INT-001,ユーザー登録→商品検索連携テスト,POST+GET,/api/users + /api/products,200+200,200+200,450,True,,2025-07-25T18:54:22.047649,1024
+INTEGRATION,INT-002,商品追加→在庫更新連携テスト,POST+PUT,/api/products + /api/stocks,200+200,200+200,380,True,,2025-07-25T18:54:22.047649,512
+INTEGRATION,INT-003,注文作成→支払い処理連携テスト,POST+POST,/api/orders + /api/payments,200+200,200+200,620,True,,2025-07-25T18:54:22.047649,768

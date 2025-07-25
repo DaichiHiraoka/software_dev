@@ -1,0 +1,25 @@
+﻿category,test_id,test_name,method,endpoint,expected_status,actual_status,response_time_ms,success,error_message,timestamp,response_size
+API,UT-API-001,商品検索API,GET,/api/products?q=プレミアム,200,200,190,True,,2025-07-25T18:53:31.420382,2
+API,UT-API-002,商品検索API(空文字),GET,/api/products?q=,200,200,360,True,,2025-07-25T18:53:31.591544,148
+API,UT-API-003,商品検索API(存在しない商品),GET,/api/products?q=存在しない商品,200,200,439,True,,2025-07-25T18:53:31.669774,2
+API,UT-API-004,TestTable全取得,GET,/api/TestTable,200,200,436,True,,2025-07-25T18:53:31.667916,2
+API,UT-API-005,TestTable新規作成,POST,/api/TestTable,200,500,326,False,"Expected 200, got 500",2025-07-25T18:53:31.558083,76
+API,UT-API-006,TestTable更新,PUT,/api/TestTable/9999,200,200,335,True,,2025-07-25T18:53:31.567489,16
+API,UT-API-007,TestTable削除,DELETE,/api/TestTable/9999,200,200,334,True,,2025-07-25T18:53:31.568032,16
+API,UT-API-008,注文一覧取得,GET,/api/orders,200,200,336,True,,2025-07-25T18:53:31.570564,5451
+API,UT-API-009,注文一覧取得(フィルタ),GET,/api/orders?status=pending,200,200,339,True,,2025-07-25T18:53:31.573969,5234
+API,UT-API-010,注文新規作成,POST,/api/orders,200,200,590,True,,2025-07-25T18:53:31.824846,89
+API,UT-API-011,注文ステータス更新,PUT,/api/orders/1,200,200,344,True,,2025-07-25T18:53:31.580343,52
+API,UT-API-012,支払い一覧取得,GET,/api/payments,200,200,341,True,,2025-07-25T18:53:31.577107,4177
+API,UT-API-013,支払いステータス更新,PUT,/api/payments/1,200,200,455,True,,2025-07-25T18:53:31.692257,59
+API,UT-API-014,発送一覧取得,GET,/api/shipments,200,200,350,True,,2025-07-25T18:53:31.586655,7877
+API,UT-API-015,発送ステータス更新,PUT,/api/shipments/1,200,200,488,True,,2025-07-25T18:53:31.726271,61
+API,UT-API-016,統計情報取得,GET,/api/stats,200,200,543,True,,2025-07-25T18:53:31.781041,72
+API,UT-API-018,ヘルスチェック,GET,/health,200,200,172,True,,2025-07-25T18:53:31.410973,96
+API,UT-API-019,存在しないエンドポイント,GET,/api/nonexistent,404,404,177,True,,2025-07-25T18:53:31.416380,154
+API,UT-API-020,不正なメソッド,PATCH,/api/products,405,405,169,True,,2025-07-25T18:53:31.408622,61
+DB,UT-DB-001,データベース接続確認,GET,/health,200,200,445,True,,2025-07-25T18:53:31.685438,96
+DB,UT-DB-002,Products挿入確認,POST,/api/TestTable,200,200,491,True,,2025-07-25T18:53:31.730747,39
+DB,UT-DB-003,データ検索確認,GET,/api/TestTable,200,200,487,True,,2025-07-25T18:53:31.727997,2
+DB,UT-DB-004,データ更新確認,PUT,/api/TestTable/9998,200,200,486,True,,2025-07-25T18:53:31.726871,17
+DB,UT-DB-005,データ削除確認,DELETE,/api/TestTable/9998,200,200,529,True,,2025-07-25T18:53:31.772468,16

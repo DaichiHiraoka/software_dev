@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .button { padding: 10px 20px; margin: 5px; border: 1px solid #ccc; cursor: pointer; }
+        .red { border-color: #f87171; color: #dc2626; background: #fef2f2; }
+    </style>
+</head>
+<body>
+    <h1>Admin Management System Test</h1>
+    <h2>System Operations</h2>
+    
+    <button class="button">Migrate TestTable to Products</button><br>
+    <button class="button">Refresh Data</button><br>
+    <button class="button red" onclick="alert('Reset System Data clicked!')">⚠️ Reset System Data</button><br>
+    
+    <p>If you can see this page at <strong>http://localhost:3004/test.html</strong>, the server is running but React may not be updated.</p>
+    
+    <script>
+        console.log('Test page loaded');
+        console.log('React App should be at: http://localhost:3004/');
+    </script>
+</body>
+</html>

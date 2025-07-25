@@ -11,7 +11,12 @@
       "Bash(start:*)",
       "Bash(cp:*)",
       "Bash(powershell:*)",
-      "Bash(docker-compose:*)"
+      "Bash(docker-compose:*)",
+      "Bash(cargo check:*)",
+      "Bash(grep:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(tasklist:*)"
     ],
     "deny": []
   }

@@ -1,1 +1,4 @@
 .devcontainer/*
+.claude/
+CLAUDE.md
+gemini.md
